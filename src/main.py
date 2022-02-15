@@ -1,0 +1,82 @@
+import time
+from dataclasses import dataclass
+from datetime import datetime, timezone
+
+import requests
+
+
+@dataclass
+class Config:
+    slack_token: str
+    slack_channel_id: str
+    ifttt_webhook_token: str
+
+
+@dataclass
+class SlackMessage:
+    ts: float
+    text: str
+
+
+def read_env(path: str = ".env") -> dict[str, str]:
+    """Reads the .env file and returns a dict with the values"""
+    with open(path) as f:
+        return {line.split("=")[0]: line.split("=")[1].strip() for line in f}
+
+
+def build_config(env_dict: dict[str, str]) -> Config:
+    return Config(
+        env_dict.get("SLACK_TOKEN"),
+        slack_channel_id=env_dict.get("SLACK_CHANNEL_ID"),
+        ifttt_webhook_token=env_dict.get("IFTTT_WEBHOOK_TOKEN"),
+    )
+
+
+def get_slack_messages(config: Config) -> list[SlackMessage]:
+    url = "https://slack.com/api/conversations.history"
+    token = config.slack_token
+    header = {"Authorization": f"Bearer {token}"}
+    channel_id = config.slack_channel_id
+    payload = {"channel": channel_id}
+    response = requests.get(url, headers=header, params=payload)
+    messages = response.json().get("messages")
+    slack_messages = [
+        SlackMessage(ts=float(message.get("ts")), text=message.get("text"))
+        for message in messages
+    ]
+    return slack_messages
+
+
+def filter_slack_messages(slack_messages: list[SlackMessage]) -> list[SlackMessage]:
+    dt_now = datetime.today()
+    filtered_slack_messages: list[SlackMessage] = []
+    for message in slack_messages:
+        dt_message = datetime.fromtimestamp(message.ts)
+        diff_days = (dt_now - dt_message).days
+        if diff_days > 0:
+            break
+        filtered_slack_messages.append(message)
+    return filtered_slack_messages
+
+
+def post_ifttt_webhook(config: Config, slack_messages: list[SlackMessage]) -> None:
+    event = "kakeibo"
+    token = config.ifttt_webhook_token
+    url = f"https://maker.ifttt.com/trigger/{event}/with/key/{token}"
+    for message in slack_messages:
+        payload = {"value1": message.ts, "value2": message.text}
+        requests.post(url, data=payload)
+        print(f"message to be posted: {message.ts},{message.text}")
+    return
+
+
+def main():
+    env_dict = read_env()
+    config = build_config(env_dict)
+    slack_messages = get_slack_messages(config)
+    filtered_slack_messages = filter_slack_messages(slack_messages)
+    post_ifttt_webhook(config, filtered_slack_messages)
+
+
+if __name__ == "__main__":
+    main()

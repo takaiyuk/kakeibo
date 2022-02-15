@@ -12,3 +12,16 @@
 $ cp .env.example .env
 $ python src/main.py
 ```
+
+## Lambda
+
+AWS Lambda で定期実行するためには requests ライブラリを含んだ Layer を作成する
+
+Linux 開発マシンを使用してこれらのライブラリをコンパイルしてビルドし、バイナリを Amazon Linux と互換性を持たせる必要がある（[ref.](https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/configuration-layers.html)）
+
+```
+$ mkdir python
+$ pip install -t python requests
+$ zip -r9 layer.zip python
+$ rm -r python
+```

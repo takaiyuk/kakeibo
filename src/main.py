@@ -9,6 +9,7 @@ class Config:
     slack_token: str
     slack_channel_id: str
     ifttt_webhook_token: str
+    ifttt_event_name: str
 
 
 @dataclass
@@ -28,6 +29,7 @@ def build_config(env_dict: dict[str, str]) -> Config:
         env_dict.get("SLACK_TOKEN"),
         slack_channel_id=env_dict.get("SLACK_CHANNEL_ID"),
         ifttt_webhook_token=env_dict.get("IFTTT_WEBHOOK_TOKEN"),
+        ifttt_event_name=env_dict.get("IFTTT_EVENT_NAME"),
     )
 
 
@@ -55,7 +57,7 @@ def filter_slack_messages(
         dt_message = datetime.fromtimestamp(message.ts)
         diff_days = (dt_now - dt_message).days
         diff_minutes = (dt_now - dt_message).seconds / 60
-        # 10分毎に実行されるので、10分以内のメッセージは除外する
+        # 10分毎に実行されるので、10分より前のメッセージは除外する
         if diff_days > exclude_days or diff_minutes > exclude_minutes:
             break
         filtered_slack_messages.append(message)
@@ -63,7 +65,7 @@ def filter_slack_messages(
 
 
 def post_ifttt_webhook(config: Config, slack_messages: list[SlackMessage]) -> None:
-    event = "kakeibo"
+    event = config.ifttt_event_name
     token = config.ifttt_webhook_token
     url = f"https://maker.ifttt.com/trigger/{event}/with/key/{token}"
     for message in slack_messages:

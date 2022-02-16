@@ -1,6 +1,5 @@
-import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 
 import requests
 
@@ -71,7 +70,6 @@ def post_ifttt_webhook(config: Config, slack_messages: list[SlackMessage]) -> No
         payload = {"value1": message.ts, "value2": message.text}
         requests.post(url, data=payload)
         print(f"message to be posted: {message.ts},{message.text}")
-    return
 
 
 def main():

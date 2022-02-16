@@ -47,13 +47,17 @@ def get_slack_messages(config: Config) -> list[SlackMessage]:
     return slack_messages
 
 
-def filter_slack_messages(slack_messages: list[SlackMessage]) -> list[SlackMessage]:
+def filter_slack_messages(
+    slack_messages: list[SlackMessage], exclude_days: int = 0, exclude_minutes: int = 10
+) -> list[SlackMessage]:
     dt_now = datetime.today()
     filtered_slack_messages: list[SlackMessage] = []
     for message in slack_messages:
         dt_message = datetime.fromtimestamp(message.ts)
         diff_days = (dt_now - dt_message).days
-        if diff_days > 0:
+        diff_minutes = (dt_now - dt_message).seconds / 60
+        # 10分毎に実行されるので、10分以内のメッセージは除外する
+        if diff_days > exclude_days or diff_minutes > exclude_minutes:
             break
         filtered_slack_messages.append(message)
     return filtered_slack_messages

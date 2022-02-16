@@ -1,5 +1,7 @@
 # kakeibo
 
+Slack の特定チャンネルに送信されたメッセージを Spreadsheet に転記するもの
+
 以下を定期実行する
 
 1. Slack API を利用して Slack メッセージを取得する
@@ -14,6 +16,7 @@ graph LR;
     Lambda -- post --> IFTTT;
     IFTTT --> Spreadsheet;
 ```
+
 ## Execute
 
 ```

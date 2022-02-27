@@ -49,7 +49,10 @@ def get_slack_messages(config: Config) -> list[SlackMessage]:
 
 
 def filter_slack_messages(
-    slack_messages: list[SlackMessage], exclude_days: int = 0, exclude_minutes: int = 10
+    slack_messages: list[SlackMessage],
+    exclude_days: int = 0,
+    exclude_minutes: int = 10,
+    is_sort: bool = True,
 ) -> list[SlackMessage]:
     dt_now = datetime.today()
     filtered_slack_messages: list[SlackMessage] = []
@@ -61,6 +64,8 @@ def filter_slack_messages(
         if diff_days > exclude_days or diff_minutes > exclude_minutes:
             break
         filtered_slack_messages.append(message)
+    if is_sort:
+        filtered_slack_messages = filtered_slack_messages[::-1]
     return filtered_slack_messages
 
 

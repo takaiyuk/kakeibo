@@ -24,6 +24,12 @@ $ cp .env.example .env
 $ python src/main.py
 ```
 
+### Test
+
+```
+$ pytest src/test_main.py 
+``` 
+
 ## Lambda
 
 AWS Lambda で定期実行するためには requests ライブラリを含んだ Layer を作成する

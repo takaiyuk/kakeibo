@@ -1,17 +1,11 @@
 from datetime import datetime
 from typing import Any
 
-from src.main import (
-    SlackMessage,
-    build_config,
-    filter_slack_messages,
-    get_slack_messages,
-    post_ifttt_webhook,
-)
+from src.main import IFTTT, Config, SlackMessage
 
 
 def mock_config():
-    return build_config(
+    return Config.build(
         {
             "SLACK_TOKEN": "token",
             "SLACK_CHANNEL_ID": "channel_id",
@@ -37,9 +31,11 @@ def test_get_slack_messages(mocker):
         SlackMessage(ts=float(message.get("ts")), text=message.get("text"))
         for message in mock_return_value
     ]
-    mocker.patch("src.main.get_request_messages", return_value=mock_return_value)
+    mocker.patch(
+        "src.main.SlackMessage._get_request_messages", return_value=mock_return_value
+    )
     config = mock_config()
-    slack_messages = get_slack_messages(config)
+    slack_messages = SlackMessage.get(config)
     assert slack_messages == expected
 
 
@@ -59,7 +55,7 @@ def test_filter_slack_messages():
         SlackMessage(ts=float(message.get("ts")), text=message.get("text"))
         for message in messages[:-1]
     ][::-1]
-    filtered_slack_messages = filter_slack_messages(slack_messages, dt_now)
+    filtered_slack_messages = SlackMessage.filter(slack_messages, dt_now)
     assert filtered_slack_messages == expected
 
 
@@ -75,12 +71,12 @@ def test_post_ifttt_webhook(mocker, capsys):
         SlackMessage(ts=float(message.get("ts")), text=message.get("text"))
         for message in messages
     ]
-    post_ifttt_webhook(config, slack_messages)
-    out, _ = capsys.readouterr()
     expected = [
         f"message to be posted: {message.ts},{message.text}"
         for message in slack_messages
     ]
     expected = "\n".join(expected)
     expected += "\n"
+    IFTTT.post(config, slack_messages)
+    out, _ = capsys.readouterr()
     assert out == expected

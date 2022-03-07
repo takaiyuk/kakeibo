@@ -18,7 +18,7 @@ class Config:
     @classmethod
     def build(cls: Type[C], env_dict: dict[str, str]) -> C:
         return cls(
-            env_dict["SLACK_TOKEN"],
+            slack_token=env_dict["SLACK_TOKEN"],
             slack_channel_id=env_dict["SLACK_CHANNEL_ID"],
             ifttt_webhook_token=env_dict["IFTTT_WEBHOOK_TOKEN"],
             ifttt_event_name=env_dict["IFTTT_EVENT_NAME"],

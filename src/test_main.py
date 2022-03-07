@@ -4,7 +4,7 @@ from typing import Any
 from src.main import IFTTT, Config, SlackMessage
 
 
-def mock_config():
+def mock_config() -> Config:
     return Config.build(
         {
             "SLACK_TOKEN": "token",
@@ -15,7 +15,18 @@ def mock_config():
     )
 
 
-def test_build_config():
+def mock_slack_messages(inputs: list[tuple[datetime, str]]) -> list[SlackMessage]:
+    messages = [
+        {"ts": str(datetime.timestamp(dt)), "text": text} for dt, text in inputs
+    ]
+    slack_messages: list[SlackMessage] = [
+        SlackMessage(ts=float(message["ts"]), text=message["text"])
+        for message in messages
+    ]
+    return slack_messages
+
+
+def test_build_config() -> None:
     config = mock_config()
     assert config.slack_token == "token"
     assert config.slack_channel_id == "channel_id"
@@ -23,60 +34,52 @@ def test_build_config():
     assert config.ifttt_event_name == "event_name"
 
 
-def test_get_slack_messages(mocker):
-    mock_return_value: list[dict[str, Any]] = [
-        {"ts": ts, "text": text} for ts, text in ((1.1, "a"), (2.2, "b"), (3.3, "c"))
+def test_get_slack_messages(mocker: Any) -> None:
+    inputs = [
+        (datetime(2020, 1, 1, 11, 59, 0), "included_59"),
+        (datetime(2020, 1, 1, 11, 51, 0), "included_51"),
+        (datetime(2020, 1, 1, 11, 49, 0), "excluded_49"),
     ]
-    expected: list[SlackMessage] = [
-        SlackMessage(ts=float(message.get("ts")), text=message.get("text"))
-        for message in mock_return_value
+    mock_return_value: list[dict[str, str]] = [
+        {"ts": str(datetime.timestamp(input[0])), "text": input[1]} for input in inputs
     ]
     mocker.patch(
         "src.main.SlackMessage._get_request_messages", return_value=mock_return_value
     )
     config = mock_config()
     slack_messages = SlackMessage.get(config)
+    expected = mock_slack_messages(inputs)
     assert slack_messages == expected
 
 
-def test_filter_slack_messages():
+def test_filter_slack_messages() -> None:
     dt_now = datetime(2020, 1, 1, 12, 0, 0)
     inputs = [
         (datetime(2020, 1, 1, 11, 59, 0), "included_59"),
         (datetime(2020, 1, 1, 11, 51, 0), "included_51"),
         (datetime(2020, 1, 1, 11, 49, 0), "excluded_49"),
     ]
-    messages = [{"ts": datetime.timestamp(dt), "text": text} for dt, text in inputs]
-    slack_messages: list[SlackMessage] = [
-        SlackMessage(ts=float(message.get("ts")), text=message.get("text"))
-        for message in messages
-    ]
-    expected: list[SlackMessage] = [
-        SlackMessage(ts=float(message.get("ts")), text=message.get("text"))
-        for message in messages[:-1]
-    ][::-1]
+    slack_messages = mock_slack_messages(inputs)
     filtered_slack_messages = SlackMessage.filter(slack_messages, dt_now)
+    expected = mock_slack_messages(inputs[:-1])[::-1]
     assert filtered_slack_messages == expected
 
 
-def test_post_ifttt_webhook(mocker, capsys):
+def test_post_ifttt_webhook(mocker: Any, capsys: Any) -> None:
     mocker.patch("src.main.Requests.post")
     config = mock_config()
     inputs = [
         (datetime(2020, 1, 1, 11, 59, 0), "included_59"),
         (datetime(2020, 1, 1, 11, 51, 0), "included_51"),
     ]
-    messages = [{"ts": datetime.timestamp(dt), "text": text} for dt, text in inputs]
-    slack_messages: list[SlackMessage] = [
-        SlackMessage(ts=float(message.get("ts")), text=message.get("text"))
-        for message in messages
-    ]
-    expected = [
-        f"message to be posted: {message.ts},{message.text}"
-        for message in slack_messages
-    ]
-    expected = "\n".join(expected)
+    slack_messages = mock_slack_messages(inputs)
+    expected = "\n".join(
+        [
+            f"message to be posted: {message.ts},{message.text}"
+            for message in slack_messages
+        ]
+    )
     expected += "\n"
     IFTTT.post(config, slack_messages)
-    out, _ = capsys.readouterr()
-    assert out == expected
+    output, _ = capsys.readouterr()
+    assert output == expected

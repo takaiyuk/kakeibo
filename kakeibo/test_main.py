@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from src.main import IFTTT, Config, SlackMessage
+from kakeibo.main import IFTTT, Config, SlackMessage
 
 
 def mock_config() -> Config:
@@ -44,7 +44,8 @@ def test_get_slack_messages(mocker: Any) -> None:
         {"ts": str(datetime.timestamp(input[0])), "text": input[1]} for input in inputs
     ]
     mocker.patch(
-        "src.main.SlackMessage._get_request_messages", return_value=mock_return_value
+        "kakeibo.main.SlackMessage._get_request_messages",
+        return_value=mock_return_value,
     )
     config = mock_config()
     slack_messages = SlackMessage.get(config)
@@ -66,7 +67,7 @@ def test_filter_slack_messages() -> None:
 
 
 def test_post_ifttt_webhook(mocker: Any, capsys: Any) -> None:
-    mocker.patch("src.main.Requests.post")
+    mocker.patch("kakeibo.main.Requests.post")
     config = mock_config()
     inputs = [
         (datetime(2020, 1, 1, 11, 59, 0), "included_59"),

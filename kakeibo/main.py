@@ -111,5 +111,5 @@ def main() -> None:
     IFTTT.post(config, filtered_slack_messages)
 
 
-if __name__ == "__main__":
+def lambda_handler(event: Any, context: Any) -> None:
     main()

@@ -7,4 +7,4 @@ function remove_dir () {
 
 remove_dir .mypy_cache
 remove_dir .pytest_cache
-remove_dir src/__pycache__
+remove_dir kakeibo/__pycache__

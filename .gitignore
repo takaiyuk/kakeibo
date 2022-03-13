@@ -1,5 +1,7 @@
-.env
-layer.zip
 __pycache__
+.env
+.coverage
 .mypy_cache
 .pytest_cache
+htmlcov/
+layer.zip

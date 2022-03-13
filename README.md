@@ -21,19 +21,19 @@ graph LR;
 
 ```
 $ cp .env.example .env
-$ python src/main.py
+$ make run
 ```
 
 ### Test
 
 ```
-$ pytest src
+$ make test
 ```
 
 ### Mypy
 
 ```
-$ mypy src
+$ make mypy
 ```
 
 ## Lambda
@@ -43,9 +43,5 @@ AWS Lambda で定期実行するためには requests ライブラリを含ん�
 Linux 開発マシンを使用してこれらのライブラリをコンパイルしてビルドし、バイナリを Amazon Linux と互換性を持たせる必要がある（[ref.](https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/configuration-layers.html)）
 
 ```
-$ ./scripts/clean_caches.sh 
-$ mkdir python
-$ pip install -t python requests
-$ zip -r9 layer.zip python
-$ rm -r python
+$ make lambda-layer
 ```

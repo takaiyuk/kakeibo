@@ -19,20 +19,20 @@ graph LR;
 
 ## Execute
 
-```
+```shell
 $ cp .env.example .env
 $ make run
 ```
 
 ### Test
 
-```
+```shell
 $ make test
 ```
 
 ### Mypy
 
-```
+```shell
 $ make mypy
 ```
 
@@ -42,6 +42,6 @@ AWS Lambda で定期実行するためには requests ライブラリを含ん�
 
 Linux 開発マシンを使用してこれらのライブラリをコンパイルしてビルドし、バイナリを Amazon Linux と互換性を持たせる必要がある（[ref.](https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/configuration-layers.html)）
 
-```
+```shell
 $ make lambda-layer
 ```

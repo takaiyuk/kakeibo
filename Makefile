@@ -1,20 +1,15 @@
 .PHONY: run test mypy clean lambda-layer
 
 run:
-	python -m kakeibo
+	rye run kakeibo
 
 test:
-	pytest --cov --cov-branch --cov-report=html kakeibo
+	rye run pytest tests --cov --cov-branch --cov-report=html
 
-mypy:
-	mypy kakeibo
+lint:
+	rye fmt
+	rye lint --fix
+	rye run mypy src/kakeibo
 
-clean:
-	./scripts/clean_caches.sh
-
-lambda-layer:
-	./scripts/clean_caches.sh \
-	&& mkdir python \
-	&& pip install -t python requests \
-	&& zip -r9 layer.zip python \
-	&& rm -r python
+docker-build:
+	docker build -f ./docker/lambda/Dockerfile -t kakeibo . --build-arg PYTHON_VERSION=$(cat .python-version | cut -d'.' -f1,2)

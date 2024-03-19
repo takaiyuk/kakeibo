@@ -12,4 +12,4 @@ lint:
 	rye run mypy src/kakeibo
 
 docker-build:
-	docker build -f ./docker/lambda/Dockerfile -t kakeibo . --build-arg PYTHON_VERSION=$(cat .python-version | cut -d'.' -f1,2)
+	docker build -f ./docker/lambda/Dockerfile -t takaiyuk/kakeibo-lambda . --build-arg PYTHON_VERSION=$(cat .python-version | cut -d'.' -f1,2)

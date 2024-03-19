@@ -16,12 +16,9 @@ def mock_config() -> Config:
 
 
 def mock_slack_messages(inputs: list[tuple[datetime, str]]) -> list[SlackMessage]:
-    messages = [
-        {"ts": str(datetime.timestamp(dt)), "text": text} for dt, text in inputs
-    ]
+    messages = [{"ts": str(datetime.timestamp(dt)), "text": text} for dt, text in inputs]
     slack_messages: list[SlackMessage] = [
-        SlackMessage(ts=float(message["ts"]), text=message["text"])
-        for message in messages
+        SlackMessage(ts=float(message["ts"]), text=message["text"]) for message in messages
     ]
     return slack_messages
 
@@ -74,12 +71,7 @@ def test_post_ifttt_webhook(mocker: Any, capsys: Any) -> None:
         (datetime(2020, 1, 1, 11, 51, 0), "included_51"),
     ]
     slack_messages = mock_slack_messages(inputs)
-    expected = "\n".join(
-        [
-            f"message to be posted: {message.ts},{message.text}"
-            for message in slack_messages
-        ]
-    )
+    expected = "\n".join([f"message to be posted: {message.ts},{message.text}" for message in slack_messages])
     expected += "\n"
     IFTTT.post(config, slack_messages)
     output, _ = capsys.readouterr()

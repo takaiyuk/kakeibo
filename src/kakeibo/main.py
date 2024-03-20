@@ -1,5 +1,3 @@
-from typing import Any
-
 import structlog
 
 from kakeibo.config import Config, GoogleAPIClientSecret
@@ -28,7 +26,3 @@ def main() -> int:
     usecase = KakeiboUseCase(service)
     usecase.execute()
     return 0
-
-
-def lambda_handler(event: Any, context: Any) -> None:
-    main()

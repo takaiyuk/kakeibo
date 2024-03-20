@@ -21,4 +21,4 @@ RUN pip install dist/kakeibo-0.1.0-py3-none-any.whl
 
 COPY src/kakeibo ${LAMBDA_TASK_ROOT}/kakeibo
 
-CMD [ "kakeibo.main.lambda_handler" ]
+CMD [ "kakeibo.lambda.lambda_handler" ]

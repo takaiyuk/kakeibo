@@ -15,6 +15,7 @@ def read_env(path: Path = Path(".env")) -> dict[str, str]:
             "GOOGLE_SHEET_WORKSHEET_NAME": os.environ.get("GOOGLE_SHEET_WORKSHEET_NAME", ""),
             "EXCLUDE_DAYS": os.environ.get("EXCLUDE_DAYS", ""),
             "EXCLUDE_MINUTES": os.environ.get("EXCLUDE_MINUTES", ""),
+            "AWS_ACCOUNT_ID": os.environ.get("AWS_ACCOUNT_ID", ""),
         }
     return {k: v for k, v in d.items() if v != ""}
 

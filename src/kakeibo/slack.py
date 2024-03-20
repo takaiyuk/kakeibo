@@ -14,6 +14,11 @@ class Interval(BaseModel):
         return self.days * 24 * 60 + self.minutes
 
 
+class FilterCondition(BaseModel):
+    exclude_interval: Interval | None = None
+    is_sort: bool = True
+
+
 class SlackMessage(BaseModel):
     ts: float
     text: str
@@ -47,8 +52,9 @@ class SlackMessages(BaseModel):
 
 
 class Slack:
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, filter_condition: FilterCondition) -> None:
         self.config = config
+        self.filter_condition = filter_condition
 
     def _fetch(self) -> list[dict[str, str]]:
         url = "https://slack.com/api/conversations.history"
@@ -58,10 +64,10 @@ class Slack:
         messages = response.json().get("messages")
         return messages
 
-    def get(self, exclude_interval: Interval | None, is_sort: bool = True) -> list[SlackMessage]:
+    def get(self) -> list[SlackMessage]:
         messages = self._fetch()
         slack_messages = SlackMessages.build(messages)
-        if exclude_interval is None:
+        if self.filter_condition.exclude_interval is None:
             return slack_messages.slack_messages
-        slack_messages.filter(exclude_interval, is_sort)
+        slack_messages.filter(self.filter_condition.exclude_interval, self.filter_condition.is_sort)
         return slack_messages.slack_messages

@@ -20,3 +20,6 @@ docker-push:
 	make docker-build
 	docker tag takaiyuk/kakeibo-lambda:latest $(AWS_ACCOUNT_ID).dkr.ecr.ap-northeast-1.amazonaws.com/takaiyuk/kakeibo-lambda:latest
 	docker push $(AWS_ACCOUNT_ID).dkr.ecr.ap-northeast-1.amazonaws.com/takaiyuk/kakeibo-lambda:latest
+
+lambda-set-env:
+	rye run invoke lambda-set-env

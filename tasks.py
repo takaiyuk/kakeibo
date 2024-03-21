@@ -2,7 +2,7 @@ from invoke import task
 
 
 @task
-def lambda_set_env(c):
+def lambda_set_env(c, profile, function_name):
     from src.kakeibo.utils import read_client_secret, read_env
 
     d = {}
@@ -12,4 +12,6 @@ def lambda_set_env(c):
     client_secrets = read_client_secret()
     for k, v in client_secrets.items():
         d[f"google_api_{k}"] = v
-    c.run(f"aws lambda update-function-configuration --function-name kakeibo --environment Variables={d}", echo=True)
+    variables = ",".join([f"{k}={v}" for k, v in d.items()])
+    variables = "{" + variables + "}"
+    c.run(f'aws lambda update-function-configuration --profile {profile} --function-name {function_name} --environment "Variables={variables}"')

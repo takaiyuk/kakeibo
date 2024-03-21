@@ -1,4 +1,4 @@
-class Test_Config:
+class TestConfig:
     def _get_target_class(self):
         from kakeibo.config import Config
 

@@ -1,5 +1,16 @@
+from typing import Any
+
 from kakeibo.config import GoogleAPIClientSecret
 from pytest import fixture
+
+
+@fixture
+def mock_looger() -> Any:
+    class MockLogger:
+        def info(self, message: str) -> None:
+            pass
+
+    return MockLogger()
 
 
 @fixture

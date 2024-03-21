@@ -14,4 +14,6 @@ def lambda_set_env(c, profile, function_name):
         d[f"google_api_{k}"] = v
     variables = ",".join([f"{k}={v}" for k, v in d.items()])
     variables = "{" + variables + "}"
-    c.run(f'aws lambda update-function-configuration --profile {profile} --function-name {function_name} --environment "Variables={variables}"')
+    c.run(
+        f'aws lambda update-function-configuration --profile {profile} --function-name {function_name} --environment "Variables={variables}"'
+    )

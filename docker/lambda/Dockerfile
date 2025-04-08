@@ -9,7 +9,7 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 
 ENV RYE_HOME /home/.rye
 ENV PATH ${RYE_HOME}/shims:${PATH}
-RUN curl -sSf https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash
+RUN curl -sSf https://rye.astral.sh/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTION="--yes" bash
 
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=requirements.lock,target=requirements.lock \

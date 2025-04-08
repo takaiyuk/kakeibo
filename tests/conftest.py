@@ -1,7 +1,8 @@
 from typing import Any
 
-from kakeibo.config import GoogleAPIClientSecret
 from pytest import fixture
+
+from kakeibo.config import GoogleAPIClientSecret
 
 
 @fixture

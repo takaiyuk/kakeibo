@@ -30,3 +30,9 @@ lambda-test:
 
 lambda-set-env:
 	rye run invoke lambda-set-env --profile $(AWS_PROFILE) --function-name $(LAMBDA_FUNCTION_NAME)
+
+echo-env:
+	@echo "AWS_PROFILE: $(AWS_PROFILE)"
+	@echo "AWS_ACCOUNT_ID: $(AWS_ACCOUNT_ID)"
+	@echo "REPOSITORY: $(REPOSITORY)"
+	@echo "LAMBDA_FUNCTION_NAME: $(LAMBDA_FUNCTION_NAME)"

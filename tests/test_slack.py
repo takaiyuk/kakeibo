@@ -45,7 +45,8 @@ class TestSlackMessages:
 
         slack_messages = self._target_class().build(
             [
-                {"ts": "1706788800.0", "text": "test3"},  # 2024-02-01 12:00:00 JST
+                {"ts": "1706788800.0", "text": "test4"},  # 2024-02-01 12:00:00 JST
+                {"ts": "1706788260.0", "text": "[ignore] test3"},  # 2024-02-01 11:51:00 JST
                 {"ts": "1706788200.0", "text": "test2"},  # 2024-02-01 11:50:00 JST
                 {"ts": "1706788140.0", "text": "test1"},  # 2024-02-01 11:49:00 JST
             ]
@@ -56,7 +57,7 @@ class TestSlackMessages:
         )
         expected = [
             SlackMessage(ts=1706788200.0, text="test2"),
-            SlackMessage(ts=1706788800.0, text="test3"),
+            SlackMessage(ts=1706788800.0, text="test4"),
         ]
         assert slack_messages.slack_messages == expected
 

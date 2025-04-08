@@ -45,6 +45,9 @@ class SlackMessages(BaseModel):
             # 10分毎に実行されるので、10分より前のメッセージは除外する
             if diff_days * 24 * 60 + diff_minutes > exclude_interval.convert_minutes():
                 break
+            # `[ignore]` で始まるメッセージは除外する
+            if message.text.startswith("[ignore]"):
+                continue
             filtered_slack_messages.append(message)
         if is_sort:
             filtered_slack_messages = filtered_slack_messages[::-1]

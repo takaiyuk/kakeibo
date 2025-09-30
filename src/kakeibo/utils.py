@@ -25,6 +25,28 @@ def read_client_secret(path: Path = Path("client_secret.json")) -> dict[str, str
     if path.exists():
         with open(path) as f:
             d = json.load(f)
+        if "type" not in d:
+            d["type"] = d.pop("google_api_type", "")
+        if "project_id" not in d:
+            d["project_id"] = d.pop("google_api_project_id", "")
+        if "private_key_id" not in d:
+            d["private_key_id"] = d.pop("google_api_private_key_id", "")
+        if "private_key" not in d:
+            d["private_key"] = d.pop("google_api_private_key", "")
+        if "client_email" not in d:
+            d["client_email"] = d.pop("google_api_client_email", "")
+        if "client_id" not in d:
+            d["client_id"] = d.pop("google_api_client_id", "")
+        if "auth_uri" not in d:
+            d["auth_uri"] = d.pop("google_api_auth_uri", "")
+        if "token_uri" not in d:
+            d["token_uri"] = d.pop("google_api_token_uri", "")
+        if "auth_provider_x509_cert_url" not in d:
+            d["auth_provider_x509_cert_url"] = d.pop("google_api_auth_provider_x509_cert_url", "")
+        if "client_x509_cert_url" not in d:
+            d["client_x509_cert_url"] = d.pop("google_api_client_x509_cert_url", "")
+        if "universe_domain" not in d:
+            d["universe_domain"] = d.pop("google_api_universe_domain", "")
     else:
         d = {
             "type": os.environ.get("google_api_type", ""),

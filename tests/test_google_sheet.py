@@ -12,13 +12,13 @@ class TestGoogleSheet:
         from kakeibo.slack import SlackMessage
 
         class MockWorksheet:
-            def insert_row(self, row: list[str | None], index: int, value_input_option: str) -> None:
+            def insert_rows(self, rows: list[list[str | None]], start_row: int, value_input_option: str) -> None:
                 from kakeibo.consts import INSERT_ROWS_TEMPLATE
 
                 template = INSERT_ROWS_TEMPLATE.copy()
 
-                assert row == template + ["1706788200.0,test2"] or row == template + ["1706788800.0,test3"]
-                assert index == 3
+                assert rows == [template + ["1706788200.0,test2"], template + ["1706788800.0,test3"]]
+                assert start_row == 3
                 assert value_input_option == "USER_ENTERED"
 
             def get_all_values(self) -> list[list[str]]:

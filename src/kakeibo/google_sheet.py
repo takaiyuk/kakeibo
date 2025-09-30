@@ -1,4 +1,3 @@
-import time
 from typing import Any
 
 import gspread
@@ -32,10 +31,13 @@ class GoogleSheet:
         return row
 
     def write(self, slack_messages: list[SlackMessage], verbose: bool = True) -> None:
+        values = []
         for slack_message in slack_messages:
-            row = self._create_insert_row(slack_message)
-            index = len(self.client.get_all_values()) + 1
-            self.client.insert_row(row, index, value_input_option=ValueInputOption.user_entered)
-            if verbose:
-                self.logger.info(f"Insert row: {row[-1]}")
-            time.sleep(1)
+            value = self._create_insert_row(slack_message)
+            values.append(value)
+
+        start_row = len(self.client.get_all_values()) + 1
+        self.client.insert_rows(values, start_row, value_input_option=ValueInputOption.user_entered)
+        if verbose:
+            for value in values:
+                self.logger.info(f"Insert row: {value[-1]}")

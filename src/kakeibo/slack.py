@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Protocol
 
 import requests
 from pydantic import BaseModel
@@ -52,6 +53,10 @@ class SlackMessages(BaseModel):
         if is_sort:
             filtered_slack_messages = filtered_slack_messages[::-1]
         self.slack_messages = filtered_slack_messages
+
+
+class SlackProtocol(Protocol):
+    def get(self) -> list[SlackMessage]: ...
 
 
 class Slack:

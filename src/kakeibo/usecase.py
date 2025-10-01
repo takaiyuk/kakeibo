@@ -1,8 +1,8 @@
-from kakeibo.service import KakeiboService
+from kakeibo.service import KakeiboServiceProtocol
 
 
 class KakeiboUseCase:
-    def __init__(self, kakeibo_service: KakeiboService) -> None:
+    def __init__(self, kakeibo_service: KakeiboServiceProtocol) -> None:
         self.kakeibo_service = kakeibo_service
 
     def execute(self) -> None:

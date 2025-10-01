@@ -113,3 +113,25 @@ def test_read_client_secret(path_exists, expected, mock_google_api_client_secret
             os.environ["google_api_universe_domain"] = "env_universe_domain"
 
         assert read_client_secret(Path(tempdir) / "client_secret.json") == expected
+
+
+def test_modify_private_key():
+    from kakeibo.utils import modify_private_key
+
+    def generate_random_key(length: int) -> str:
+        import random
+        import string
+
+        return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+
+    key1 = generate_random_key(64)
+    key2 = generate_random_key(64)
+    key3 = generate_random_key(64)
+
+    # Test case where the key is already correctly formatted
+    correct_key = f"-----BEGIN PRIVATE KEY-----\n{key1}\n{key2}\n{key3}\n-----END PRIVATE KEY-----"
+    assert modify_private_key(correct_key) == correct_key
+
+    # Test case where the key is in a single line with spaces
+    incorrect_key = f"-----BEGIN PRIVATE KEY----- {key1} {key2} {key3} -----END PRIVATE KEY-----"
+    assert modify_private_key(incorrect_key) == correct_key

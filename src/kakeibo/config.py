@@ -15,6 +15,9 @@ class GoogleAPIClientSecret(BaseModel):
     universe_domain: str
 
 
+GOOGLE_API_KEYS = [k for k in GoogleAPIClientSecret.model_fields.keys()]
+
+
 class Config(BaseModel):
     slack_token: str
     slack_channel_id: str

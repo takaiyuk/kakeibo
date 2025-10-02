@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Protocol
 
 import gspread
 from gspread.utils import ValueInputOption
@@ -8,6 +8,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 from kakeibo.config import Config, GoogleAPIClientSecret
 from kakeibo.consts import INSERT_ROWS_TEMPLATE
 from kakeibo.slack import SlackMessage
+
+
+class GoogleSheetProtocol(Protocol):
+    def write(self, slack_messages: list[SlackMessage], verbose: bool = True) -> None: ...
 
 
 class GoogleSheet:

@@ -21,9 +21,6 @@ class TestSlackMessages:
 
         return SlackMessages
 
-    def _make_one(self, *args, **kwargs):
-        return self._target_class()(*args, **kwargs)
-
     def test_build(self):
         from kakeibo.slack import SlackMessage
 

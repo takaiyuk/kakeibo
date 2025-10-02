@@ -72,3 +72,28 @@ python_version = "3.11"
 ignore_missing_imports = true
 disallow_untyped_defs = true
 no_implicit_optional = true
+
+[tool.coverage.report]
+exclude_also = [
+    'def __repr__',
+    'if self.debug:',
+    'if settings.DEBUG',
+    'raise AssertionError',
+    'raise NotImplementedError',
+    'if 0:',
+    'if __name__ == .__main__.:',
+    'if TYPE_CHECKING:',
+    'class .*\bProtocol\):',
+    '@(abc\.)?abstractmethod',
+]
+
+[tool.coverage.run]
+include = [
+    "src/**/*.py"
+]
+omit = [
+    "src/kakeibo/__init__.py",
+    "src/kakeibo/__main__.py",
+    "src/kakeibo/lambda.py",
+    "src/kakeibo/main.py"
+]

@@ -74,7 +74,7 @@ class TestSlack:
 
         class MockResponse:
             def json(self):
-                return {"messages": [{"ts": "1706788800.0", "text": "test3"}]}
+                return {"messages": [{"ts": "1706788200.0", "text": "test2"}, {"ts": "1706788140.0", "text": "test1"}]}
 
         config = Config(
             slack_token=mock_env_dict["SLACK_TOKEN"],
@@ -82,9 +82,10 @@ class TestSlack:
             google_sheet_worksheet_name=mock_env_dict["GOOGLE_SHEET_WORKSHEET_NAME"],
             google_api_client_secret=mock_google_api_client_secret,
         )
+
         filter_condition = FilterCondition()
         slack = self._make_one(config, filter_condition)
         mocker.patch("requests.get", return_value=MockResponse())
         slack_messages = slack.get()
-        expected = [SlackMessage(ts=1706788800.0, text="test3")]
+        expected = [SlackMessage(ts=1706788200.0, text="test2"), SlackMessage(ts=1706788140.0, text="test1")]
         assert slack_messages == expected

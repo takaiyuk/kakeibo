@@ -68,13 +68,20 @@ class TestSlack:
     def _make_one(self, *args, **kwargs):
         return self._target_class()(*args, **kwargs)
 
+    @freeze_time("2024-02-01 12:00:00")
     def test_get(self, mocker, mock_env_dict, mock_google_api_client_secret):
         from kakeibo.config import Config
-        from kakeibo.slack import FilterCondition, SlackMessage
+        from kakeibo.slack import FilterCondition, Interval, SlackMessage
 
         class MockResponse:
             def json(self):
-                return {"messages": [{"ts": "1706788200.0", "text": "test2"}, {"ts": "1706788140.0", "text": "test1"}]}
+                return {
+                    "messages": [
+                        {"ts": "1706788260.0", "text": "test3"},
+                        {"ts": "1706788200.0", "text": "test2"},
+                        {"ts": "1706788140.0", "text": "test1"},
+                    ]
+                }
 
         config = Config(
             slack_token=mock_env_dict["SLACK_TOKEN"],
@@ -87,5 +94,16 @@ class TestSlack:
         slack = self._make_one(config, filter_condition)
         mocker.patch("requests.get", return_value=MockResponse())
         slack_messages = slack.get()
-        expected = [SlackMessage(ts=1706788200.0, text="test2"), SlackMessage(ts=1706788140.0, text="test1")]
+        expected = [
+            SlackMessage(ts=1706788260.0, text="test3"),
+            SlackMessage(ts=1706788200.0, text="test2"),
+            SlackMessage(ts=1706788140.0, text="test1"),
+        ]
+        assert slack_messages == expected
+
+        filter_condition = FilterCondition(exclude_interval=Interval(days=0, minutes=10), is_sort=True)
+        slack = self._make_one(config, filter_condition)
+        mocker.patch("requests.get", return_value=MockResponse())
+        slack_messages = slack.get()
+        expected = [SlackMessage(ts=1706788200.0, text="test2"), SlackMessage(ts=1706788260.0, text="test3")]
         assert slack_messages == expected

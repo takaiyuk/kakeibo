@@ -60,5 +60,6 @@ def modify_private_key(key: str) -> str:
                 for i in range(0, len(content), 64):
                     lines.append(content[i : i + 64].strip())
                 # Reconstruct the key with proper formatting
-                key = f"-----BEGIN PRIVATE KEY-----\n{'\n'.join(lines)}\n-----END PRIVATE KEY-----"
+                newline_joined = "\n".join(lines)
+                key = f"-----BEGIN PRIVATE KEY-----\n{newline_joined}\n-----END PRIVATE KEY-----"
     return key

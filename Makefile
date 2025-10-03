@@ -8,13 +8,16 @@ LAMBDA_FUNCTION_NAME := kakeibo
 run:
 	uv run kakeibo
 
-test:
-	uv run pytest tests --cov --cov-branch --cov-report=html
-
 lint:
 	uv run ruff format
 	uv run ruff check --fix
 	uv run mypy src/kakeibo
+
+test:
+	uv run pytest tests --cov --cov-branch --cov-report=html
+
+test-ci:
+	uv run pytest tests --cov=src --cov-report=term-missing --junitxml=pytest.xml | tee pytest-coverage.txt
 
 docker-build:
 	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=$(shell grep -E '^requires-python' pyproject.toml | sed 's/.*">= \([0-9.]*\)".*/\1/')

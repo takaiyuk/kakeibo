@@ -17,7 +17,7 @@ lint:
 	uv run mypy src/kakeibo
 
 docker-build:
-	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=3.12
+	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=$(shell grep -E '^requires-python' pyproject.toml | sed 's/.*">= \([0-9.]*\)".*/\1/')
 
 docker-push:
 	aws ecr get-login-password --region ap-northeast-1 --profile $(AWS_PROFILE) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.ap-northeast-1.amazonaws.com

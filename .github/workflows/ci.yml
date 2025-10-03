@@ -1,0 +1,70 @@
+name: Lint and test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+
+env:
+  PYTHON_VERSION: '3.13'
+  UV_VERSION: '0.8.22'
+  UV_CACHE_DIR: /home/runner/.local/
+  UV_BIN_PATH: /home/runner/.local/bin
+
+jobs:
+  detect-changes:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      # Expose matched filters as job 'packages' output variable
+      packages: ${{ steps.filter.outputs.changes }}
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          kakeibo:
+            - src/kakeibo/**/*.py
+            - tests/**/*.py
+            - uv.lock
+
+  lint-and-test:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.packages != '[]' && needs.detect-changes.outputs.packages != '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Parse JSON array containing names of all filters matching any of changed files
+        # e.g. ['package1', 'package2'] if both package folders contains changes
+        package: ${{ fromJSON(needs.detect-changes.outputs.packages) }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: ${{ env.UV_VERSION }}
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache-local-path: ${{ env.UV_CACHE_DIR }}
+    - name: Add uv to PATH
+      run: |
+        echo "${{ env.UV_BIN_PATH }}" >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        uv sync
+    - name: Run lint
+      run: |
+        make lint
+    - name: Run test
+      run: |
+        make test

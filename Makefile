@@ -1,5 +1,5 @@
 include .env
-.PHONY: run test mypy clean lambda-layer
+.PHONY: run lint test test-ci docker-build docker-push lambda-test lambda-set-env echo-env
 
 AWS_PROFILE := $(if $(AWS_PROFILE),$(AWS_PROFILE),default)
 REPOSITORY := takaiyuk/kakeibo-lambda

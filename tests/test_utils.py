@@ -97,6 +97,8 @@ def test_read_client_secret(path_exists, expected, mock_google_api_client_secret
     with tempfile.TemporaryDirectory() as tempdir:
         if path_exists:
             d = mock_google_api_client_secret.model_dump()
+            for k in d.keys():
+                d[f"google_api_{k}"] = d.pop(k)
             with open(f"{tempdir}/client_secret.json", "w") as f:
                 json.dump(d, f)
         else:

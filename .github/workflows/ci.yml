@@ -62,9 +62,18 @@ jobs:
     - name: Install dependencies
       run: |
         uv sync
+    - name: Prepare env file
+      run: |
+        cp .env.example .env
     - name: Run lint
       run: |
         make lint
     - name: Run test
       run: |
-        make test
+        set -o pipefail
+        make test-ci
+    - name: Pytest coverage comment
+      uses: MishaKav/pytest-coverage-comment@v1.1.57
+      with:
+        pytest-coverage-path: ./pytest-coverage.txt
+        junitxml-path: ./pytest.xml

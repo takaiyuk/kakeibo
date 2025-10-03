@@ -3,6 +3,7 @@ from typing import Any
 from pytest import fixture
 
 from kakeibo.config import GoogleAPIClientSecret
+from kakeibo.slack import SlackMessage
 
 
 @fixture
@@ -41,3 +42,11 @@ def mock_google_api_client_secret() -> GoogleAPIClientSecret:
         client_x509_cert_url="client_x509_cert_url",
         universe_domain="universe_domain",
     )
+
+
+@fixture
+def mock_slack_messages() -> list[SlackMessage]:
+    return [
+        SlackMessage(ts=1706788200.0, text="test1"),
+        SlackMessage(ts=1706788800.0, text="test2"),
+    ]

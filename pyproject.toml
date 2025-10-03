@@ -11,7 +11,7 @@ dependencies = [
     "structlog>=24.1.0",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">= 3.13"
 
 [project.scripts]
 kakeibo = "kakeibo:main"
@@ -20,9 +20,8 @@ kakeibo = "kakeibo:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.rye]
-managed = true
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "mypy>=1.9.0",
     "pytest>=8.1.1",
     "types-requests>=2.31.0.20240311",
@@ -30,6 +29,7 @@ dev-dependencies = [
     "pytest-cov>=4.1.0",
     "freezegun>=1.4.0",
     "pytest-mock>=3.12.0",
+    "ruff>=0.7.0",
 ]
 
 [tool.hatch.metadata]

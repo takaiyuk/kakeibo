@@ -6,18 +6,18 @@ REPOSITORY := takaiyuk/kakeibo-lambda
 LAMBDA_FUNCTION_NAME := kakeibo
 
 run:
-	rye run kakeibo
+	uv run kakeibo
 
 test:
-	rye run pytest tests --cov --cov-branch --cov-report=html
+	uv run pytest tests --cov --cov-branch --cov-report=html
 
 lint:
-	rye fmt
-	rye lint --fix
-	rye run mypy src/kakeibo
+	uv run ruff format
+	uv run ruff check --fix
+	uv run mypy src/kakeibo
 
 docker-build:
-	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=$(shell cat .python-version | cut -d'.' -f1,2)
+	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=$(shell grep -E '^requires-python' pyproject.toml | sed 's/.*">= \([0-9.]*\)".*/\1/')
 
 docker-push:
 	aws ecr get-login-password --region ap-northeast-1 --profile $(AWS_PROFILE) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.ap-northeast-1.amazonaws.com
@@ -29,7 +29,7 @@ lambda-test:
 	docker run -p 9000:8080 -v $(PWD)/.env:/var/task/.env -v $(PWD)/client_secret.json:/var/task/client_secret.json $(REPOSITORY):latest
 
 lambda-set-env:
-	rye run invoke lambda-set-env --profile $(AWS_PROFILE) --function-name $(LAMBDA_FUNCTION_NAME)
+	uv run invoke lambda-set-env --profile $(AWS_PROFILE) --function-name $(LAMBDA_FUNCTION_NAME)
 
 echo-env:
 	@echo "AWS_PROFILE: $(AWS_PROFILE)"

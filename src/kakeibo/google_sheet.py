@@ -29,7 +29,7 @@ class GoogleSheet:
         sheet = client.open(sheet_filename).sheet1
         return sheet
 
-    def _create_insert_row(self, slack_message: SlackMessage) -> list[str | None]:
+    def _create_insert_row(self, slack_message: SlackMessage) -> list[str]:
         row = INSERT_ROWS_TEMPLATE.copy()
         row.append(f"{slack_message.ts},{slack_message.text}")
         return row

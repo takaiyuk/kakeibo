@@ -2,9 +2,6 @@
 ARG PYTHON_VERSION
 FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
-RUN dnf update -y \
-    && dnf install -y gzip
-
 WORKDIR ${LAMBDA_TASK_ROOT}
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.22-python3.13-trixie-slim@sha256:d716fd45535c4e79af0312fc232c01350a0958053b489b1b4ac4c6fbf7230a5d /usr/local/bin/uv /usr/local/bin/uv
@@ -15,7 +12,7 @@ RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     --mount=type=bind,source=README.md,target=README.md \
     uv build --wheel
 RUN pip install dist/kakeibo-0.1.0-py3-none-any.whl \
-    && rm -rf dist build __pypackages__ .uv
+    && rm -rf dist build __pypackages__ .uv /usr/local/bin/uv
 
 COPY src/kakeibo ${LAMBDA_TASK_ROOT}/kakeibo
 

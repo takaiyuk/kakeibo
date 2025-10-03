@@ -62,6 +62,9 @@ jobs:
     - name: Install dependencies
       run: |
         uv sync
+    - name: Prepare env file
+      run: |
+        cp .env.example .env
     - name: Run lint
       run: |
         make lint

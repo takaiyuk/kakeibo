@@ -6,24 +6,29 @@ REPOSITORY := takaiyuk/kakeibo-lambda
 LAMBDA_FUNCTION_NAME := kakeibo
 
 run:
-	uv run kakeibo
+	uv run --package kakeibo kakeibo
 
 run-receipt:
-	uv run receipt
+	uv run --package receipt receipt
 
 lint:
 	uv run ruff format
 	uv run ruff check --fix
-	uv run mypy src/kakeibo
+	uv run --package kakeibo mypy libs/kakeibo/kakeibo
+
+lint-receipt:
+	uv run --package receipt ruff format libs/receipt/receipt
+	uv run --package receipt ruff check --fix libs/receipt/receipt
+	uv run --package receipt mypy libs/receipt/receipt
 
 test:
 	uv run pytest tests --cov --cov-branch --cov-report=html
 
 test-ci:
-	uv run pytest tests --cov=src --cov-report=term-missing --junitxml=pytest.xml | tee pytest-coverage.txt
+	uv run pytest tests --cov=libs --cov-report=term-missing --junitxml=pytest.xml | tee pytest-coverage.txt
 
 docker-build:
-	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=$(shell grep -E '^requires-python' pyproject.toml | sed 's/.*">= \([0-9.]*\)".*/\1/')
+	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=$(shell grep -E '^requires-python' libs/kakeibo/pyproject.toml | sed 's/.*">= \([0-9.]*\)".*/\1/')
 
 docker-push:
 	aws ecr get-login-password --region ap-northeast-1 --profile $(AWS_PROFILE) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.ap-northeast-1.amazonaws.com

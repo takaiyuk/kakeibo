@@ -9,7 +9,7 @@ def main() -> int:
     logger = structlog.get_logger(__name__)
     logger.debug("Receipt main executed")
 
-    pwd = Path(__file__).parent.parent.parent
+    pwd = Path(__file__).parent.parent.parent.parent
     result_dir = Path(f"{pwd}/results")
     base_filename = "IMG_5240"
     original_path = Path(f"{pwd}/tmp/{base_filename}.jpg")

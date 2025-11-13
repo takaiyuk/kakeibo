@@ -10,7 +10,7 @@ from kakeibo.utils import read_client_secret, read_env
 
 
 def main() -> int:
-    logger = logger = structlog.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     env_dict = read_env()
     client_secret = read_client_secret()
     exclude_days = int(env_dict.get("EXCLUDE_DAYS", EXCLUDE_DAYS))

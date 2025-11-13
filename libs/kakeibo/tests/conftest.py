@@ -1,9 +1,8 @@
 from typing import Any
 
-from pytest import fixture
-
 from kakeibo.config import GoogleAPIClientSecret
 from kakeibo.slack import SlackMessage
+from pytest import fixture
 
 
 @fixture

@@ -5,13 +5,17 @@ AWS_PROFILE := $(if $(AWS_PROFILE),$(AWS_PROFILE),default)
 REPOSITORY := takaiyuk/kakeibo-lambda
 LAMBDA_FUNCTION_NAME := kakeibo
 
-run:
+run: run-kakeibo
+
+run-kakeibo:
 	uv run --package kakeibo kakeibo
 
 run-receipt:
 	uv run --package receipt receipt
 
-lint:
+lint: lint-kakeibo lint-receipt
+
+lint-kakeibo:
 	uv run ruff format
 	uv run ruff check --fix
 	uv run --package kakeibo mypy libs/kakeibo/kakeibo
@@ -21,11 +25,15 @@ lint-receipt:
 	uv run --package receipt ruff check --fix libs/receipt/receipt
 	uv run --package receipt mypy libs/receipt/receipt
 
-test:
-	uv run pytest tests --cov --cov-branch --cov-report=html
+test: test-kakeibo
 
-test-ci:
-	uv run pytest tests --cov=libs --cov-report=term-missing --junitxml=pytest.xml | tee pytest-coverage.txt
+test-kakeibo:
+	uv run pytest libs/kakeibo/tests --cov --cov-branch --cov-report=html
+
+test-ci: test-ci-kakeibo
+
+test-ci-kakeibo:
+	uv run pytest libs/kakeibo/tests --cov=libs --cov-report=term-missing --junitxml=pytest.xml | tee pytest-coverage.txt
 
 docker-build:
 	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=$(shell grep -E '^requires-python' libs/kakeibo/pyproject.toml | sed 's/.*">= \([0-9.]*\)".*/\1/')

@@ -8,6 +8,9 @@ LAMBDA_FUNCTION_NAME := kakeibo
 run:
 	uv run kakeibo
 
+run-receipt:
+	uv run receipt
+
 lint:
 	uv run ruff format
 	uv run ruff check --fix

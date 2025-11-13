@@ -8,3 +8,5 @@ __pycache__
 client_secret.json
 htmlcov/
 layer.zip
+results/
+tmp/

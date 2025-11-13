@@ -1,5 +1,5 @@
 include .env
-.PHONY: run lint test test-ci docker-build docker-push lambda-test lambda-set-env echo-env
+.PHONY: run run-kakeibo run-receipt lint lint-kakeibo lint-receipt test test-kakeibo test-ci test-ci-kakeibo docker-build docker-push lambda-test lambda-set-env echo-env
 
 AWS_PROFILE := $(if $(AWS_PROFILE),$(AWS_PROFILE),default)
 REPOSITORY := takaiyuk/kakeibo-lambda
@@ -36,7 +36,7 @@ test-ci-kakeibo:
 	uv run pytest libs/kakeibo/tests --cov=libs --cov-report=term-missing --junitxml=pytest.xml | tee pytest-coverage.txt
 
 docker-build:
-	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) . --build-arg PYTHON_VERSION=$(shell grep -E '^requires-python' libs/kakeibo/pyproject.toml | sed 's/.*">= \([0-9.]*\)".*/\1/')
+	docker build -f ./docker/lambda/Dockerfile -t $(REPOSITORY) ./libs/kakeibo --build-arg PYTHON_VERSION=$(shell grep -E '^requires-python' libs/kakeibo/pyproject.toml | sed 's/.*">= \([0-9.]*\)".*/\1/')
 
 docker-push:
 	aws ecr get-login-password --region ap-northeast-1 --profile $(AWS_PROFILE) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.ap-northeast-1.amazonaws.com

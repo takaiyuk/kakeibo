@@ -10,7 +10,7 @@ from kakeibo.utils import read_client_secret, read_env
 
 
 def main() -> int:
-    logger = logger = structlog.get_logger(__name__)
+    logger = structlog.get_logger(__name__)
     env_dict = read_env()
     client_secret = read_client_secret()
     exclude_days = int(env_dict.get("EXCLUDE_DAYS", EXCLUDE_DAYS))
@@ -20,7 +20,7 @@ def main() -> int:
 
     google_api_client_secret = GoogleAPIClientSecret(**client_secret)
     config = Config.build(env_dict, google_api_client_secret)
-    slack_client = Slack(config, filter_condition)
+    slack_client = Slack(logger, config, filter_condition)
     google_sheet_client = GoogleSheet(logger, config)
     service = KakeiboService(slack_client, google_sheet_client)
     usecase = KakeiboUseCase(service)

@@ -16,8 +16,8 @@ class TestKakeiboUseCase:
         mock_kakeibo_service = Mock()
 
         expected_messages = [
-            SlackMessage(ts=1706788200.0, text="test1"),
-            SlackMessage(ts=1706788800.0, text="test2"),
+            SlackMessage(ts=1706788200.0, text="test1", user="U123"),
+            SlackMessage(ts=1706788800.0, text="test2", user="U456"),
         ]
         mock_kakeibo_service.get_slack_messages.return_value = expected_messages
 

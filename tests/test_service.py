@@ -17,8 +17,8 @@ class TestKakeiboService:
         mock_google_sheet_client = Mock()
 
         expected_messages = [
-            SlackMessage(ts=1706788200.0, text="test1"),
-            SlackMessage(ts=1706788800.0, text="test2"),
+            SlackMessage(ts=1706788200.0, text="test1", user="U123"),
+            SlackMessage(ts=1706788800.0, text="test2", user="U456"),
         ]
         mock_slack_client.get.return_value = expected_messages
 
@@ -33,8 +33,8 @@ class TestKakeiboService:
         mock_google_sheet_client = Mock()
 
         slack_messages = [
-            SlackMessage(ts=1706788200.0, text="test1"),
-            SlackMessage(ts=1706788800.0, text="test2"),
+            SlackMessage(ts=1706788200.0, text="test1", user="U123"),
+            SlackMessage(ts=1706788800.0, text="test2", user="U456"),
         ]
 
         service = self._make_one(mock_slack_client, mock_google_sheet_client)

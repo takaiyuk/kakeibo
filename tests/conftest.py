@@ -12,6 +12,9 @@ def mock_looger() -> Any:
         def info(self, message: str) -> None:
             pass
 
+        def warning(self, message: str) -> None:
+            pass
+
     return MockLogger()
 
 
@@ -24,6 +27,7 @@ def mock_env_dict() -> dict[str, str]:
         "EXCLUDE_DAYS": "1",
         "EXCLUDE_MINUTES": "2",
         "AWS_ACCOUNT_ID": "account_id",
+        "SLACK_USER1": "U123",
     }
 
 
@@ -47,6 +51,6 @@ def mock_google_api_client_secret() -> GoogleAPIClientSecret:
 @fixture
 def mock_slack_messages() -> list[SlackMessage]:
     return [
-        SlackMessage(ts=1706788200.0, text="test1"),
-        SlackMessage(ts=1706788800.0, text="test2"),
+        SlackMessage(ts=1706788200.0, text="test1", user="U123"),
+        SlackMessage(ts=1706788800.0, text="test2", user="U456"),
     ]

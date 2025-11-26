@@ -1,3 +1,4 @@
+import pytest
 from freezegun import freeze_time
 
 
@@ -13,6 +14,27 @@ class TestInterval:
     def test_convert_minutes(self):
         interval = self._make_one(days=1, minutes=10)
         assert interval.convert_minutes() == 1450
+
+
+class TestSlackMessage:
+    def _target_class(self):
+        from kakeibo.slack import SlackMessage
+
+        return SlackMessage
+
+    def _make_one(self, *args, **kwargs):
+        return self._target_class()(*args, **kwargs)
+
+    @pytest.mark.parametrize(
+        "text, expected",
+        [
+            ("Line1\nLine2\nLine3", True),
+            ("NoNewlineHere", False),
+        ],
+    )
+    def test_has_newline(self, text, expected):
+        message = self._make_one(ts=1.0, text=text, user="U123")
+        assert message.has_newline() is expected
 
 
 class TestSlackMessages:
@@ -83,6 +105,15 @@ class TestSlack:
                     ]
                 }
 
+        class MockResponseWithNewline:
+            def json(self):
+                return {
+                    "messages": [
+                        {"ts": "1706788260.0", "text": "test3,300", "user": "U123"},
+                        {"ts": "1706788140.0", "text": "test1,100,2\ntest2,200", "user": "U789"},
+                    ]
+                }
+
         config = Config(
             slack_token=mock_env_dict["SLACK_TOKEN"],
             slack_channel_id=mock_env_dict["SLACK_CHANNEL_ID"],
@@ -107,5 +138,19 @@ class TestSlack:
         slack = self._make_one(mock_looger, config, filter_condition)
         mocker.patch("requests.get", return_value=MockResponse())
         slack_messages = slack.get()
-        expected = [SlackMessage(ts=1706788200.0, text="test2", user="U456"), SlackMessage(ts=1706788260.0, text="test3", user="U123")]
+        expected = [
+            SlackMessage(ts=1706788200.0, text="test2", user="U456"),
+            SlackMessage(ts=1706788260.0, text="test3", user="U123"),
+        ]
+        assert slack_messages == expected
+
+        filter_condition = FilterCondition()
+        slack = self._make_one(mock_looger, config, filter_condition)
+        mocker.patch("requests.get", return_value=MockResponseWithNewline())
+        slack_messages = slack.get()
+        expected = [
+            SlackMessage(ts=1706788260.0, text="test3,300,1", user="U123"),
+            SlackMessage(ts=1706788140.0, text="test2,200", user="U789"),
+            SlackMessage(ts=1706788140.0, text="test1,100,2", user="U789"),
+        ]
         assert slack_messages == expected

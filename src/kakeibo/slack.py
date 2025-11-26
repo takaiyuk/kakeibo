@@ -124,9 +124,8 @@ class Slack:
     def get(self) -> list[SlackMessage]:
         messages = self._fetch()
         slack_messages = SlackMessages.build(messages)
-        if self.filter_condition.exclude_interval is None:
-            return slack_messages.slack_messages
-        slack_messages.filter(self.filter_condition.exclude_interval, self.filter_condition.is_sort)
+        if self.filter_condition.exclude_interval is not None:
+            slack_messages.filter(self.filter_condition.exclude_interval, self.filter_condition.is_sort)
         slack_messages.transform()
         slack_messages.complement(self.logger, self.config)
         return slack_messages.slack_messages

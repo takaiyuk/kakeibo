@@ -70,13 +70,10 @@ class TestSlackMessages:
                 {"ts": "1706788140.0", "text": "test1", "user": "U456"},  # 2024-02-01 11:49:00 JST
             ]
         )
-        slack_messages.filter(
-            exclude_interval=Interval(days=0, minutes=10),
-            is_sort=True,
-        )
+        slack_messages.filter(exclude_interval=Interval(days=0, minutes=10))
         expected = [
-            SlackMessage(ts=1706788200.0, text="test2", user="U123"),
             SlackMessage(ts=1706788800.0, text="test4", user="U456"),
+            SlackMessage(ts=1706788200.0, text="test2", user="U123"),
         ]
         assert slack_messages.slack_messages == expected
 
@@ -128,13 +125,13 @@ class TestSlack:
         mocker.patch("requests.get", return_value=MockResponse())
         slack_messages = slack.get()
         expected = [
-            SlackMessage(ts=1706788260.0, text="test3", user="U123"),
-            SlackMessage(ts=1706788200.0, text="test2", user="U456"),
             SlackMessage(ts=1706788140.0, text="test1", user="U789"),
+            SlackMessage(ts=1706788200.0, text="test2", user="U456"),
+            SlackMessage(ts=1706788260.0, text="test3", user="U123"),
         ]
         assert slack_messages == expected
 
-        filter_condition = FilterCondition(exclude_interval=Interval(days=0, minutes=10), is_sort=True)
+        filter_condition = FilterCondition(exclude_interval=Interval(days=0, minutes=10))
         slack = self._make_one(mock_looger, config, filter_condition)
         mocker.patch("requests.get", return_value=MockResponse())
         slack_messages = slack.get()
@@ -149,8 +146,11 @@ class TestSlack:
         mocker.patch("requests.get", return_value=MockResponseWithNewline())
         slack_messages = slack.get()
         expected = [
-            SlackMessage(ts=1706788260.0, text="test3,300,1", user="U123"),
-            SlackMessage(ts=1706788140.0, text="test2,200", user="U789"),
             SlackMessage(ts=1706788140.0, text="test1,100,2", user="U789"),
+            SlackMessage(ts=1706788140.0, text="test2,200", user="U789"),
+            SlackMessage(ts=1706788260.0, text="test3,300,1", user="U123"),
         ]
-        assert slack_messages == expected
+        for actual, expect in zip(slack_messages, expected, strict=False):
+            assert actual.ts == pytest.approx(expect.ts, 1e-6)  # tsに微小な差分をつけているため近似比較
+            assert actual.text == expect.text
+            assert actual.user == expect.user

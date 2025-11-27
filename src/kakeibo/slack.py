@@ -19,7 +19,6 @@ class Interval(BaseModel):
 
 class FilterCondition(BaseModel):
     exclude_interval: Interval | None = None
-    is_sort: bool = True
 
 
 class SlackMessage(BaseModel):
@@ -47,7 +46,6 @@ class SlackMessages(BaseModel):
     def filter(
         self,
         exclude_interval: Interval,
-        is_sort: bool,
     ) -> None:
         dt_now = datetime.now()
         filtered_slack_messages: list[SlackMessage] = []
@@ -62,8 +60,6 @@ class SlackMessages(BaseModel):
             if message.text.startswith("[ignore]"):
                 continue
             filtered_slack_messages.append(message)
-        if is_sort:
-            filtered_slack_messages = filtered_slack_messages[::-1]
         self.slack_messages = filtered_slack_messages
 
     def transform(self) -> None:
@@ -71,10 +67,13 @@ class SlackMessages(BaseModel):
         for message in self.slack_messages:
             if message.has_newline():
                 split_messages = message.text.split("\n")
-                split_messages = split_messages[::-1]  # 元が新しい順なので逆順にする
                 new_messages: list[SlackMessage] = [
-                    SlackMessage(ts=message.ts, text=text, user=message.user) for text in split_messages
+                    # NOTE: ts に微小な差分をつけてユニークにする
+                    SlackMessage(ts=message.ts + i * 1e-6, text=text, user=message.user)
+                    for i, text in enumerate(split_messages)
                 ]
+                new_messages.sort(key=lambda msg: msg.ts)
+                new_messages.reverse()  # NOTE: 元が新しい順なので逆順にする
                 transformed_messages.extend(new_messages)
             else:
                 transformed_messages.append(message)
@@ -102,6 +101,9 @@ class SlackMessages(BaseModel):
             new_slack_messages.append(message)
         self.slack_messages = new_slack_messages
 
+    def sort(self) -> None:
+        self.slack_messages.sort(key=lambda message: message.ts)
+
 
 class SlackProtocol(Protocol):
     def get(self) -> list[SlackMessage]: ...
@@ -125,7 +127,8 @@ class Slack:
         messages = self._fetch()
         slack_messages = SlackMessages.build(messages)
         if self.filter_condition.exclude_interval is not None:
-            slack_messages.filter(self.filter_condition.exclude_interval, self.filter_condition.is_sort)
+            slack_messages.filter(self.filter_condition.exclude_interval)
         slack_messages.transform()
         slack_messages.complement(self.logger, self.config)
+        slack_messages.sort()
         return slack_messages.slack_messages

@@ -4,6 +4,7 @@ include .env
 AWS_PROFILE := $(if $(AWS_PROFILE),$(AWS_PROFILE),default)
 REPOSITORY := takaiyuk/kakeibo-lambda
 LAMBDA_FUNCTION_NAME := kakeibo
+LAMBDA_FUNCTION_TIMEOUT_SECONDS := 10
 
 run:
 	uv run kakeibo
@@ -29,7 +30,7 @@ docker-push:
 
 lambda-test:
 	# curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
-	docker run -p 9000:8080 -v $(PWD)/.env:/var/task/.env -v $(PWD)/client_secret.json:/var/task/client_secret.json $(REPOSITORY):latest
+	docker run -p 9000:8080 -v $(PWD)/.env:/var/task/.env -v $(PWD)/client_secret.json:/var/task/client_secret.json -e AWS_LAMBDA_FUNCTION_TIMEOUT=$(LAMBDA_FUNCTION_TIMEOUT_SECONDS) $(REPOSITORY):latest
 
 lambda-set-env:
 	uv run invoke lambda-set-env --profile $(AWS_PROFILE) --function-name $(LAMBDA_FUNCTION_NAME)

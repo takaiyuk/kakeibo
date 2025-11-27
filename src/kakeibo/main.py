@@ -16,7 +16,7 @@ def main() -> int:
     exclude_days = int(env_dict.get("EXCLUDE_DAYS", EXCLUDE_DAYS))
     exclude_minutes = int(env_dict.get("EXCLUDE_MINUTES", EXCLUDE_MINUTES))
     interval = Interval(days=exclude_days, minutes=exclude_minutes)
-    filter_condition = FilterCondition(exclude_interval=interval, is_sort=True)
+    filter_condition = FilterCondition(exclude_interval=interval)
 
     google_api_client_secret = GoogleAPIClientSecret(**client_secret)
     config = Config.build(env_dict, google_api_client_secret)

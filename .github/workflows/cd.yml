@@ -1,0 +1,95 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/kakeibo/**/*.py
+      - docker/lambda/Dockerfile
+      - pyproject.toml
+      - uv.lock
+      - .github/workflows/cd.yml
+
+env:
+  PYTHON_VERSION: '3.13'
+  UV_VERSION: '0.8.22'
+  UV_CACHE_DIR: /home/runner/.local/
+  AWS_REGION: ap-northeast-1
+  REPOSITORY: ${{ vars.ECR_REPOSITORY_NAME }}
+  LAMBDA_FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: ${{ env.UV_VERSION }}
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache-local-path: ${{ env.UV_CACHE_DIR }}
+    
+    - name: Install dependencies
+      run: |
+        uv sync
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    
+    - name: Build Docker image
+      run: |
+        docker build \
+          -f ./docker/lambda/Dockerfile \
+          -t ${{ env.REPOSITORY }}:latest \
+          --build-arg PYTHON_VERSION=${{ env.PYTHON_VERSION }} \
+          --build-arg UV_VERSION=${{ env.UV_VERSION }} \
+          .
+    
+    - name: Tag and push to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker tag ${{ env.REPOSITORY }}:latest ${{ env.ECR_REGISTRY }}/${{ env.REPOSITORY }}:latest
+        docker tag ${{ env.REPOSITORY }}:latest ${{ env.ECR_REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.REPOSITORY }}:latest
+        docker push ${{ env.ECR_REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+    
+    - name: Get ECR image URI
+      id: image-uri
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        IMAGE_URI="${{ env.ECR_REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}"
+        echo "uri=$IMAGE_URI" >> $GITHUB_OUTPUT
+        echo "Image pushed to:"
+        echo "  ${{ env.ECR_REGISTRY }}/${{ env.REPOSITORY }}:latest"
+        echo "  $IMAGE_URI"
+    
+    - name: Deploy to Lambda
+      run: |
+        aws lambda update-function-code \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+          --image-uri ${{ steps.image-uri.outputs.uri }}
+    
+    - name: Wait for Lambda update to complete
+      run: |
+        aws lambda wait function-updated \
+          --function-name ${{ env.LAMBDA_FUNCTION_NAME }}

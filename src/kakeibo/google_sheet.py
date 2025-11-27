@@ -40,6 +40,9 @@ class GoogleSheet:
             value = self._create_insert_row(slack_message)
             values.append(value)
 
+        if not values:
+            self.logger.info("No new slack messages to write to Google Sheet.")
+            return
         start_row = len(self.client.get_all_values()) + 1
         self.client.insert_rows(values, start_row, value_input_option=ValueInputOption.user_entered)
         if verbose:

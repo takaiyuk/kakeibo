@@ -9,6 +9,9 @@ from kakeibo.slack import SlackMessage
 @fixture
 def mock_looger() -> Any:
     class MockLogger:
+        def debug(self, message: str) -> None:
+            pass
+
         def info(self, message: str) -> None:
             pass
 

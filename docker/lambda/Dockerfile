@@ -1,6 +1,6 @@
 # https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/python-image.html
-ARG PYTHON_VERSION
-ARG UV_VERSION
+ARG PYTHON_VERSION=3.13
+ARG UV_VERSION=0.9.13
 FROM ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_VERSION}-trixie-slim AS source
 FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 

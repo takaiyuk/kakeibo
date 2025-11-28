@@ -1,10 +1,12 @@
 # https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/python-image.html
 ARG PYTHON_VERSION
+ARG UV_VERSION
+FROM ghcr.io/astral-sh/uv:${UV_VERSION}-python${PYTHON_VERSION}-trixie-slim@sha256:d716fd45535c4e79af0312fc232c01350a0958053b489b1b4ac4c6fbf7230a5d AS source
 FROM public.ecr.aws/lambda/python:${PYTHON_VERSION}
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-COPY --from=ghcr.io/astral-sh/uv:0.8.22-python3.13-trixie-slim@sha256:d716fd45535c4e79af0312fc232c01350a0958053b489b1b4ac4c6fbf7230a5d /usr/local/bin/uv /usr/local/bin/uv
+COPY --from=source /usr/local/bin/uv /usr/local/bin/uv
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 RUN --mount=type=bind,source=pyproject.toml,target=pyproject.toml \

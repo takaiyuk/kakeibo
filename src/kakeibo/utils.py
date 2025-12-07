@@ -18,6 +18,8 @@ def read_env(path: Path = Path(".env")) -> dict[str, str]:
             "EXCLUDE_DAYS": os.environ.get("EXCLUDE_DAYS", ""),
             "EXCLUDE_MINUTES": os.environ.get("EXCLUDE_MINUTES", ""),
             "AWS_ACCOUNT_ID": os.environ.get("AWS_ACCOUNT_ID", ""),
+            "SLACK_USER1": os.environ.get("SLACK_USER1", ""),
+            "SLACK_USER2": os.environ.get("SLACK_USER2", ""),
         }
     return {k: v for k, v in d.items() if v != ""}
 

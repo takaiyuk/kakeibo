@@ -31,6 +31,7 @@ def mock_env_dict() -> dict[str, str]:
         "EXCLUDE_MINUTES": "2",
         "AWS_ACCOUNT_ID": "account_id",
         "SLACK_USER1": "U123",
+        "SLACK_USER2": "",
     }
 
 

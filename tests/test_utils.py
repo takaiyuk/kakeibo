@@ -30,6 +30,8 @@ import pytest
                 "EXCLUDE_DAYS": "11",
                 "EXCLUDE_MINUTES": "22",
                 "AWS_ACCOUNT_ID": "env_account_id",
+                "SLACK_USER1": "U456",
+                "SLACK_USER2": "U789",
             },
         ),
     ],
@@ -51,7 +53,8 @@ def test_read_env(path_exists, expected, mock_env_dict):
             os.environ["EXCLUDE_DAYS"] = "11"
             os.environ["EXCLUDE_MINUTES"] = "22"
             os.environ["AWS_ACCOUNT_ID"] = "env_account_id"
-            os.environ["SLACK_USER1"] = "U123"
+            os.environ["SLACK_USER1"] = "U456"
+            os.environ["SLACK_USER2"] = "U789"
 
         assert read_env(Path(tempdir) / (".env")) == expected
 

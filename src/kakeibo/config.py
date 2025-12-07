@@ -31,8 +31,8 @@ class Config(BaseModel):
         return cls(
             slack_token=envs["SLACK_TOKEN"],
             slack_channel_id=envs["SLACK_CHANNEL_ID"],
-            slack_user1=envs.get("SLACK_USER1"),
-            slack_user2=envs.get("SLACK_USER2"),
+            slack_user1=envs["SLACK_USER1"],
+            slack_user2=envs["SLACK_USER2"],
             google_sheet_worksheet_name=envs["GOOGLE_SHEET_WORKSHEET_NAME"],
             google_api_client_secret=google_api_client_secret,
         )

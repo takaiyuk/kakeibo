@@ -1,6 +1,8 @@
 import pytest
 from freezegun import freeze_time
 
+from kakeibo.slack import SlackAlertMessage
+
 
 class TestInterval:
     def _target_class(self):
@@ -78,7 +80,7 @@ class TestSlackMessages:
         assert slack_messages.slack_messages == expected
 
 
-class TestSlack:
+class TestSlackMessageBuilder:
     def _target_class(self):
         from kakeibo.slack import SlackMessageBuilder
 
@@ -111,9 +113,14 @@ class TestSlack:
                     ]
                 }
 
+        class MockSlackAlert:
+            def send(self, _messages: list[SlackAlertMessage]) -> None:
+                pass
+
         config = Config(
             slack_token=mock_env_dict["SLACK_TOKEN"],
             slack_channel_id=mock_env_dict["SLACK_CHANNEL_ID"],
+            slack_alert_channel_id=mock_env_dict["SLACK_ALERT_CHANNEL_ID"],
             google_sheet_worksheet_name=mock_env_dict["GOOGLE_SHEET_WORKSHEET_NAME"],
             google_api_client_secret=mock_google_api_client_secret,
             slack_user1=mock_env_dict["SLACK_USER1"],
@@ -121,7 +128,8 @@ class TestSlack:
         )
 
         filter_condition = FilterCondition()
-        slack = self._make_one(mock_looger, config, filter_condition)
+        slack_alert_client = MockSlackAlert()
+        slack = self._make_one(mock_looger, config, filter_condition, slack_alert_client)
         mocker.patch("requests.get", return_value=MockResponse())
         slack_messages = slack.build()
         expected = [
@@ -132,7 +140,7 @@ class TestSlack:
         assert slack_messages == expected
 
         filter_condition = FilterCondition(exclude_interval=Interval(days=0, minutes=10))
-        slack = self._make_one(mock_looger, config, filter_condition)
+        slack = self._make_one(mock_looger, config, filter_condition, slack_alert_client)
         mocker.patch("requests.get", return_value=MockResponse())
         slack_messages = slack.build()
         expected = [
@@ -142,7 +150,7 @@ class TestSlack:
         assert slack_messages == expected
 
         filter_condition = FilterCondition()
-        slack = self._make_one(mock_looger, config, filter_condition)
+        slack = self._make_one(mock_looger, config, filter_condition, slack_alert_client)
         mocker.patch("requests.get", return_value=MockResponseWithNewline())
         slack_messages = slack.build()
         expected = [

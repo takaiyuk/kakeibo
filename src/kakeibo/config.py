@@ -21,6 +21,7 @@ GOOGLE_API_KEYS = [k for k in GoogleAPIClientSecret.model_fields.keys()]
 class Config(BaseModel):
     slack_token: str
     slack_channel_id: str
+    slack_alert_channel_id: str
     slack_user1: str | None
     slack_user2: str | None
     google_sheet_worksheet_name: str
@@ -31,6 +32,7 @@ class Config(BaseModel):
         return cls(
             slack_token=envs["SLACK_TOKEN"],
             slack_channel_id=envs["SLACK_CHANNEL_ID"],
+            slack_alert_channel_id=envs["SLACK_ALERT_CHANNEL_ID"],
             slack_user1=envs["SLACK_USER1"],
             slack_user2=envs["SLACK_USER2"],
             google_sheet_worksheet_name=envs["GOOGLE_SHEET_WORKSHEET_NAME"],

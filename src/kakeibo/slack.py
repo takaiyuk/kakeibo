@@ -9,6 +9,29 @@ from kakeibo.config import Config
 USER_BOT: Final = "USLACKBOT"
 
 
+class SlackAlertMessage(BaseModel):
+    message: str
+
+
+class SlackAlertProtocol(Protocol):
+    def send(self, messages: list[SlackAlertMessage]) -> None: ...
+
+
+class SlackAlert:
+    def __init__(self, config: Config) -> None:
+        self.config = config
+
+    def send(self, messages: list[SlackAlertMessage]) -> None:
+        url = "https://slack.com/api/chat.postMessage"
+        header = {"Authorization": f"Bearer {self.config.slack_token}"}
+        joined_message = "\n".join([msg.message for msg in messages])
+        payload = {
+            "channel": self.config.slack_alert_channel_id,
+            "text": joined_message,
+        }
+        requests.post(url=url, headers=header, json=payload)
+
+
 class Interval(BaseModel):
     days: int = 0
     minutes: int = 10
@@ -79,7 +102,8 @@ class SlackMessages(BaseModel):
                 transformed_messages.append(message)
         self.slack_messages = transformed_messages
 
-    def complement(self, logger: Any, config: Config) -> None:
+    def complement(self, logger: Any, config: Config) -> list[SlackAlertMessage]:
+        slack_alert_messages: list[SlackAlertMessage] = []
         new_slack_messages: list[SlackMessage] = []
         for message in self.slack_messages:
             match len(message.text.split(",")):
@@ -92,14 +116,19 @@ class SlackMessages(BaseModel):
                             message.text += ",4"
                         case _:
                             if message.user != USER_BOT:
-                                logger.warning(f"Slack message user is invalid: {message.user}")
+                                msg = f"Slack message user is invalid: {message.user}"
+                                logger.warning(msg)
+                                slack_alert_messages.append(SlackAlertMessage(message=msg))
                 case 3:
                     pass
                 case _:
-                    logger.warning(f"Slack message format is invalid: {message.text}")
+                    msg = f"Slack message format is invalid: {message.text}"
+                    logger.warning(msg)
+                    slack_alert_messages.append(SlackAlertMessage(message=msg))
                     pass
             new_slack_messages.append(message)
         self.slack_messages = new_slack_messages
+        return slack_alert_messages
 
     def sort(self) -> None:
         self.slack_messages.sort(key=lambda message: message.ts)
@@ -110,10 +139,13 @@ class SlackMessageBuilderProtocol(Protocol):
 
 
 class SlackMessageBuilder:
-    def __init__(self, logger: Any, config: Config, filter_condition: FilterCondition) -> None:
+    def __init__(
+        self, logger: Any, config: Config, filter_condition: FilterCondition, slack_alert_client: SlackAlertProtocol
+    ) -> None:
         self.logger = logger
         self.config = config
         self.filter_condition = filter_condition
+        self.slack_alert_client = slack_alert_client
 
     def _fetch(self) -> list[dict[str, str]]:
         url = "https://slack.com/api/conversations.history"
@@ -129,6 +161,8 @@ class SlackMessageBuilder:
         if self.filter_condition.exclude_interval is not None:
             slack_messages.filter(self.filter_condition.exclude_interval)
         slack_messages.transform()
-        slack_messages.complement(self.logger, self.config)
+        slack_alert_messages = slack_messages.complement(self.logger, self.config)
+        if slack_alert_messages:
+            self.slack_alert_client.send(slack_alert_messages)
         slack_messages.sort()
         return slack_messages.slack_messages

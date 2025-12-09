@@ -80,9 +80,9 @@ class TestSlackMessages:
 
 class TestSlack:
     def _target_class(self):
-        from kakeibo.slack import Slack
+        from kakeibo.slack import SlackMessageBuilder
 
-        return Slack
+        return SlackMessageBuilder
 
     def _make_one(self, *args, **kwargs):
         return self._target_class()(*args, **kwargs)
@@ -123,7 +123,7 @@ class TestSlack:
         filter_condition = FilterCondition()
         slack = self._make_one(mock_looger, config, filter_condition)
         mocker.patch("requests.get", return_value=MockResponse())
-        slack_messages = slack.get()
+        slack_messages = slack.build()
         expected = [
             SlackMessage(ts=1706788140.0, text="test1", user="U789"),
             SlackMessage(ts=1706788200.0, text="test2", user="U456"),
@@ -134,7 +134,7 @@ class TestSlack:
         filter_condition = FilterCondition(exclude_interval=Interval(days=0, minutes=10))
         slack = self._make_one(mock_looger, config, filter_condition)
         mocker.patch("requests.get", return_value=MockResponse())
-        slack_messages = slack.get()
+        slack_messages = slack.build()
         expected = [
             SlackMessage(ts=1706788200.0, text="test2", user="U456"),
             SlackMessage(ts=1706788260.0, text="test3", user="U123"),
@@ -144,7 +144,7 @@ class TestSlack:
         filter_condition = FilterCondition()
         slack = self._make_one(mock_looger, config, filter_condition)
         mocker.patch("requests.get", return_value=MockResponseWithNewline())
-        slack_messages = slack.get()
+        slack_messages = slack.build()
         expected = [
             SlackMessage(ts=1706788140.0, text="test1,100,2", user="U789"),
             SlackMessage(ts=1706788140.0, text="test2,200", user="U789"),

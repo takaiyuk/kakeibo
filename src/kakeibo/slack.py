@@ -105,11 +105,11 @@ class SlackMessages(BaseModel):
         self.slack_messages.sort(key=lambda message: message.ts)
 
 
-class SlackProtocol(Protocol):
-    def get(self) -> list[SlackMessage]: ...
+class SlackMessageBuilderProtocol(Protocol):
+    def build(self) -> list[SlackMessage]: ...
 
 
-class Slack:
+class SlackMessageBuilder:
     def __init__(self, logger: Any, config: Config, filter_condition: FilterCondition) -> None:
         self.logger = logger
         self.config = config
@@ -123,7 +123,7 @@ class Slack:
         messages = response.json().get("messages")
         return messages
 
-    def get(self) -> list[SlackMessage]:
+    def build(self) -> list[SlackMessage]:
         messages = self._fetch()
         slack_messages = SlackMessages.build(messages)
         if self.filter_condition.exclude_interval is not None:

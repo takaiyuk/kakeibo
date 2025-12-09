@@ -23,11 +23,13 @@ class SlackAlert:
 
     def send(self, messages: list[SlackAlertMessage]) -> None:
         url = "https://slack.com/api/chat.postMessage"
-        header = {"Authorization": f"Bearer {self.config.slack_token}"}
+        header = {"Authorization": f"Bearer {self.config.slack_token}", "Content-Type": "application/json"}
         joined_message = "\n".join([msg.message for msg in messages])
         payload = {
             "channel": self.config.slack_alert_channel_id,
-            "text": joined_message,
+            "text": "```" + joined_message + "```",
+            "username": "Kakeibo Alert Bot",
+            "icon_emoji": ":robot_face:",
         }
         requests.post(url=url, headers=header, json=payload)
 

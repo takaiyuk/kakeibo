@@ -14,6 +14,7 @@ def read_env(path: Path = Path(".env")) -> dict[str, str]:
         d = {
             "SLACK_TOKEN": os.environ.get("SLACK_TOKEN", ""),
             "SLACK_CHANNEL_ID": os.environ.get("SLACK_CHANNEL_ID", ""),
+            "SLACK_ALERT_CHANNEL_ID": os.environ.get("SLACK_ALERT_CHANNEL_ID", ""),
             "GOOGLE_SHEET_WORKSHEET_NAME": os.environ.get("GOOGLE_SHEET_WORKSHEET_NAME", ""),
             "EXCLUDE_DAYS": os.environ.get("EXCLUDE_DAYS", ""),
             "EXCLUDE_MINUTES": os.environ.get("EXCLUDE_MINUTES", ""),

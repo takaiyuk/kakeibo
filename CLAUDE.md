@@ -14,9 +14,9 @@ Kakeibo (家計簿) is a serverless application that transfers messages from Sla
 - `make lint` - Run all code quality checks (formatting, linting, type checking)
 
 ### Testing
-- `rye run pytest tests/test_specific.py::TestClass::test_method` - Run a single test
-- `rye run pytest -k "test_name"` - Run tests matching a pattern
-- `rye run pytest -x` - Stop on first failure
+- `uv run pytest tests/test_specific.py::TestClass::test_method` - Run a single test
+- `uv run pytest -k "test_name"` - Run tests matching a pattern
+- `uv run pytest -x` - Stop on first failure
 
 ### Deployment
 - `make docker-build` - Build Lambda Docker image

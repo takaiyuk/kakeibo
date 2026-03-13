@@ -115,16 +115,37 @@ class Slack:
         self.config = config
         self.filter_condition = filter_condition
 
-    def _fetch(self) -> list[dict[str, str]]:
+    def _fetch(self) -> list[dict[str, str]] | None:
         url = "https://slack.com/api/conversations.history"
         header = {"Authorization": f"Bearer {self.config.slack_token}"}
-        payload = {"channel": self.config.slack_channel_id}
-        response = requests.get(url=url, headers=header, params=payload)
-        messages = response.json().get("messages")
-        return messages
+        payload: dict[str, Any] = {"channel": self.config.slack_channel_id}
+        all_messages: list[dict[str, str]] = []
+
+        while True:
+            response = requests.get(url=url, headers=header, params=payload)
+            response_json: dict[str, Any] = response.json()
+            if not response_json.get("ok"):
+                self.logger.error("Slack API response", response_json=response_json)
+                return None
+            messages = response_json.get("messages")
+            if messages is None:
+                self.logger.error("Slack API response does not contain messages", response_json=response_json)
+                return None
+            all_messages.extend(messages)
+
+            if not response_json.get("has_more"):
+                break
+            next_cursor = response_json.get("response_metadata", {}).get("next_cursor")
+            if not next_cursor:
+                break
+            payload["cursor"] = next_cursor
+
+        return all_messages
 
     def get(self) -> list[SlackMessage]:
         messages = self._fetch()
+        if messages is None:
+            return []
         slack_messages = SlackMessages.build(messages)
         if self.filter_condition.exclude_interval is not None:
             slack_messages.filter(self.filter_condition.exclude_interval)

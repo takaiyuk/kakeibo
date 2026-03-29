@@ -26,6 +26,7 @@ def mock_env_dict() -> dict[str, str]:
     return {
         "SLACK_TOKEN": "token",
         "SLACK_CHANNEL_ID": "channel_id",
+        "SLACK_ALERT_CHANNEL_ID": "alert_channel_id",
         "GOOGLE_SHEET_WORKSHEET_NAME": "worksheet_name",
         "EXCLUDE_DAYS": "1",
         "EXCLUDE_MINUTES": "2",

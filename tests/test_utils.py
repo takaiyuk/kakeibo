@@ -14,6 +14,7 @@ import pytest
             {
                 "SLACK_TOKEN": "token",
                 "SLACK_CHANNEL_ID": "channel_id",
+                "SLACK_ALERT_CHANNEL_ID": "alert_channel_id",
                 "GOOGLE_SHEET_WORKSHEET_NAME": "worksheet_name",
                 "EXCLUDE_DAYS": "1",
                 "EXCLUDE_MINUTES": "2",
@@ -26,6 +27,7 @@ import pytest
             {
                 "SLACK_TOKEN": "env_token",
                 "SLACK_CHANNEL_ID": "env_channel_id",
+                "SLACK_ALERT_CHANNEL_ID": "env_alert_channel_id",
                 "GOOGLE_SHEET_WORKSHEET_NAME": "env_worksheet_name",
                 "EXCLUDE_DAYS": "11",
                 "EXCLUDE_MINUTES": "22",
@@ -49,6 +51,7 @@ def test_read_env(path_exists, expected, mock_env_dict):
         else:
             os.environ["SLACK_TOKEN"] = "env_token"
             os.environ["SLACK_CHANNEL_ID"] = "env_channel_id"
+            os.environ["SLACK_ALERT_CHANNEL_ID"] = "env_alert_channel_id"
             os.environ["GOOGLE_SHEET_WORKSHEET_NAME"] = "env_worksheet_name"
             os.environ["EXCLUDE_DAYS"] = "11"
             os.environ["EXCLUDE_MINUTES"] = "22"

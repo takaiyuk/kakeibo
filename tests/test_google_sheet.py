@@ -31,6 +31,7 @@ class TestGoogleSheet:
         config = Config(
             slack_token=mock_env_dict["SLACK_TOKEN"],
             slack_channel_id=mock_env_dict["SLACK_CHANNEL_ID"],
+            slack_alert_channel_id=mock_env_dict["SLACK_ALERT_CHANNEL_ID"],
             google_sheet_worksheet_name=mock_env_dict["GOOGLE_SHEET_WORKSHEET_NAME"],
             google_api_client_secret=mock_google_api_client_secret,
             slack_user1=mock_env_dict["SLACK_USER1"],

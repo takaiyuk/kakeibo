@@ -13,20 +13,20 @@ class TestKakeiboService:
         return self._target_class()(*args, **kwargs)
 
     def test_get_slack_messages(self):
-        mock_slack_client = Mock()
+        mock_slack_message_builder = Mock()
         mock_google_sheet_client = Mock()
 
         expected_messages = [
             SlackMessage(ts=1706788200.0, text="test1", user="U123"),
             SlackMessage(ts=1706788800.0, text="test2", user="U456"),
         ]
-        mock_slack_client.get.return_value = expected_messages
+        mock_slack_message_builder.build.return_value = expected_messages
 
-        service = self._make_one(mock_slack_client, mock_google_sheet_client)
+        service = self._make_one(mock_slack_message_builder, mock_google_sheet_client)
         result = service.get_slack_messages()
 
         assert result == expected_messages
-        mock_slack_client.get.assert_called_once()
+        mock_slack_message_builder.build.assert_called_once()
 
     def test_write_google_sheet(self):
         mock_slack_client = Mock()
